@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>差し押さえ債権評価モデル</title>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+max-width:900px;
+margin:auto;
+padding:20px;
+background:#f4f4f4;
+text-align:center;
+}
+
+.header{
+background:#3498db;
+color:white;
+padding:20px;
+}
+
+.section{
+background:white;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+box-shadow:0 0 5px rgba(0,0,0,0.2);
+}
+
+#photo{
+max-width:500px;
+width:100%;
+cursor:pointer;
+}
+
+input{
+width:100%;
+padding:8px;
+margin-bottom:10px;
+}
+
+button{
+width:100%;
+height:40px;
+background:#4CAF50;
+color:white;
+border:none;
+}
+
+#model4d{
+height:500px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>差し押さえ債権評価モデル</h1>
+
+</div>
+
+
+<div class="section">
+
+<h2>画像</h2>
+
+<img id="photo" src="images/photo1.jpg">
+
+</div>
+
+
+
+<div class="section">
+
+<h2>差し押さえ債権の評価</h2>
+
+<p>
+
+差し押さえ債権は債権者平等の原則に基づき評価されるが、
+実務上は交渉や市場条件によって価格調整が行われる。
+
+</p>
+
+<p>
+
+交渉コストは
+
+</p>
+
+<p>
+
+O = (B − S) / T
+
+</p>
+
+<p>
+
+として定義される。
+
+</p>
+
+</div>
+
+
+
+<div class="section">
+
+<h2>評価計算</h2>
+
+<label>B 債権額</label>
+<input id="B" type="number" value="5000">
+
+<label>S 市場価格</label>
+<input id="S" type="number" value="4000">
+
+<label>T 交渉パラメータ</label>
+<input id="T" type="number" value="10">
+
+<label>V 市場期待</label>
+<input id="V" type="number" value="0.44">
+
+<label>r 金利</label>
+<input id="r" type="number" value="0.14">
+
+<label>X 期間</label>
+<input id="X" type="number" value="1">
+
+<button onclick="calculate()">計算</button>
+
+<p id="result"></p>
+
+</div>
+
+
+
+<div class="section">
+
+<h2>4D金融価格モデル</h2>
+
+<div id="model4d"></div>
+
+</div>
+
+
+
+<div class="section">
+
+<h2>数理構造</h2>
+
+<p>
+
+価格は次の多変数関数として表される。
+
+</p>
+
+<p>
+
+Price = (B×V − (B−S)/T) / (V e^(-rX))
+
+</p>
+
+<p>
+
+この関数は
+
+</p>
+
+<p>
+
+B : 債権額  
+S : 市場価格  
+T : 交渉パラメータ  
+V : 市場期待  
+r : 金利  
+X : 時間  
+
+</p>
+
+<p>
+
+の6変数によって構成される。
+
+</p>
+
+</div>
+
+
+
+<div class="section">
+
+<h2>クジラ・プランクトンモデル</h2>
+
+<p>
+
+本研究では市場流動性をプランクトン、
+資本主体をクジラとして対応させる。
+
+</p>
+
+<p>
+
+この構造は生態系モデルにおける
+捕食者–被食者関係と対応する。
+
+</p>
+
+</div>
+
+
+
+<script>
+
+/* 画像切替 */
+
+const images=[
+"images/photo1.jpg",
+"images/photo2.jpg",
+"images/photo3.jpg"
+]
+
+let index=0
+
+const photo=document.getElementById("photo")
+
+photo.onclick=function(){
+
+index++
+
+if(index>=images.length){
+
+index=0
+
+}
+
+photo.src=images[index]
+
+}
+
+
+
+/* 計算 */
+
+function calculate(){
+
+const B=parseFloat(document.getElementById("B").value)
+const S=parseFloat(document.getElementById("S").value)
+const T=parseFloat(document.getElementById("T").value)
+const V=parseFloat(document.getElementById("V").value)
+const r=parseFloat(document.getElementById("r").value)
+const X=parseFloat(document.getElementById("X").value)
+
+
+const option=(B-S)/T
+
+const price=(B*V-option)/(V*Math.exp(-r*X))
+
+document.getElementById("result").innerHTML=
+
+"交渉コスト："+option.toFixed(2)+"<br>評価価格："+price.toFixed(2)
+
+
+draw4D(B,S,T,V,r,X)
+
+}
+
+
+
+function draw4D(B,S,T,V,r,X){
+
+const x=[]
+const y=[]
+const z=[]
+const color=[]
+
+for(let s=1;s<=40;s++){
+
+for(let s1=1;s1<=40;s1++){
+
+const option=(B-s)/T
+
+const price=(B*V-option)/(V*Math.exp(-r*X))
+
+x.push(s)
+y.push(s1)
+z.push(price)
+color.push(price)
+
+}
+
+}
+
+const trace={
+
+x:x,
+y:y,
+z:z,
+
+mode:"markers",
+
+marker:{
+size:3,
+color:color,
+colorscale:"Viridis"
+},
+
+type:"scatter3d"
+
+}
+
+Plotly.newPlot("model4d",[trace])
+
+}
+
+window.onload=calculate
+
+</script>
+
+</body>
+</html>
