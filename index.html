@@ -221,32 +221,18 @@ X : 時間
 <script>
 
 /* 画像切替 */
+const images = [
+"images/photo1.png",
+"images/photo2.png",
+"images/photo3.png"
+];
 
-const images=[
-"images/photo1.jpg",
-"images/photo2.jpg",
-"images/photo3.jpg"
-]
+let num = 0;
 
-let index=0
-
-const photo=document.getElementById("photo")
-
-photo.onclick=function(){
-
-index++
-
-if(index>=images.length){
-
-index=0
-
-}
-
-photo.src=images[index]
-
-}
-
-
+setInterval(function(){
+ num = (num + 1) % images.length;
+ document.getElementById("photo").src = images[num];
+},3000);
 
 /* 計算 */
 
